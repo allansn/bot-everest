@@ -3,25 +3,27 @@ import os
 import requests
 from urllib.parse import quote
 
-TOKEN = os.environ["CLASH_API_TOKEN"]
+# Remove espaços e quebras de linha do token
+TOKEN = "".join(os.environ["CLASH_API_TOKEN"].split())
 
 CLAN_TAG = "#2JRP8G0U0"
 API_URL = "https://cocproxy.royaleapi.dev/v1"
 
-# Verificação segura do token
 print("BOT EVEREST - Verificação")
 print("Token carregado:", bool(TOKEN))
 print("Tamanho do token:", len(TOKEN))
 print("Contém espaços internos:", any(c.isspace() for c in TOKEN))
 print("Formato JWT correto:", TOKEN.count(".") == 2)
 
+
 def buscar_membros():
-    url = f"{API_URL}/clans/{quote(CLAN_TAG, safe='')}/members"
+    url = f"{API_URL}/clans/{quote(CLAN_TAG, safe='')}\/members"
+    url = url.replace("\\/", "/")
 
     resposta = requests.get(
         url,
         headers={
-            "Authorization": f"Bearer {TOKEN.strip()}"
+            "Authorization": f"Bearer {TOKEN}"
         },
         timeout=30
     )
@@ -42,5 +44,7 @@ def buscar_membros():
             membro.get("role")
         )
 
+
 if __name__ == "__main__":
     buscar_membros()
+    
