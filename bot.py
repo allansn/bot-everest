@@ -29,7 +29,8 @@ def buscar_membros():
     return {
         membro["tag"]: {
             "nome": membro.get("name"),
-            "cargo": membro.get("role")
+            "cargo": membro.get("role"),
+"trofeus": membro.get("trophies", 0)
         }
         for membro in membros
     }
