@@ -11,7 +11,7 @@ def buscar_membros():
 
     resposta = requests.get(
         url,
-        headers={"auth": TOKEN},
+        headers={"Authorization": f"Bearer {TOKEN.strip()}"},
         timeout=30
     )
 
