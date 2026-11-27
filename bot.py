@@ -16,11 +16,11 @@ def buscar_membros():
     )
 
     if resposta.status_code != 200:
-    print("Erro da API:", resposta.status_code)
-    print("Detalhes:", resposta.text)
-    return
-    membros = resposta.json().get("items", [])
+        print("Erro da API:", resposta.status_code)
+        print("Detalhes:", resposta.text)
+        return
 
+    membros = resposta.json().get("items", [])
     print(f"EVEREST™ - Total de membros: {len(membros)}")
 
     for membro in membros:
