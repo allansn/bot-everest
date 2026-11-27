@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EVEREST™ | Painel de Liderança</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:#090909;
+  color:#f5f5f5;
+  font-family:Arial,sans-serif;
+}
+header{
+  background:linear-gradient(135deg,#17130a,#050505);
+  border-bottom:2px solid #c9a646;
+  padding:28px 18px;
+  text-align:center;
+}
+.escudo{font-size:42px}
+h1{color:#e4c15a;margin:8px 0}
+.sub{color:#aaa;font-size:12px;letter-spacing:3px}
+main{max-width:1050px;margin:auto;padding:20px}
+.status{color:#d8bd65;font-size:13px;margin-bottom:18px}
+.cards{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(145px,1fr));
+  gap:12px;
+}
+.card{
+  background:#171717;
+  border:1px solid #55451f;
+  border-radius:12px;
+  padding:18px;
+}
+.card small{color:#aaa}
+.number{
+  font-size:30px;
+  font-weight:bold;
+  color:#e5c45e;
+  margin-top:10px;
+}
+h2{color:#e5c45e;font-size:18px;margin-top:30px}
+input{
+  width:100%;
+  padding:14px;
+  background:#171717;
+  color:white;
+  border:1px solid #6b5526;
+  border-radius:8px;
+  margin:12px 0;
+}
+.member{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  padding:13px;
+  border-bottom:1px solid #292929;
+}
+.member strong{color:#fff}
+.tag{color:#aaa;font-size:12px}
+.role{color:#e5c45e;font-size:12px}
+#alerts{
+  background:#171717;
+  border:1px solid #55451f;
+  border-radius:10px;
+  padding:16px;
+  white-space:pre-wrap;
+  line-height:1.6;
+  color:#ddd;
+  font-size:13px;
+  overflow-wrap:anywhere;
+}
+button{
+  background:#c9a646;
+  color:#111;
+  border:0;
+  padding:12px 18px;
+  border-radius:8px;
+  font-weight:bold;
+}
+footer{
+  text-align:center;
+  color:#777;
+  padding:30px;
+  font-size:12px;
+}
+</style>
+</head>
+
+<body>
+<header>
+  <div class="escudo">⚔️</div>
+  <h1>EVEREST™</h1>
+  <div class="sub">PAINEL OFICIAL DE LIDERANÇA</div>
+</header>
+
+<main>
+  <div class="status" id="status">Conectando ao BOT EVEREST™...</div>
+
+  <div class="cards">
+    <div class="card">
+      <small>Total de membros</small>
+      <div class="number" id="total">--</div>
+    </div>
+    <div class="card">
+      <small>Líder</small>
+      <div class="number" id="lider">--</div>
+    </div>
+    <div class="card">
+      <small>Co-líderes</small>
+      <div class="number" id="coleaders">--</div>
+    </div>
+    <div class="card">
+      <small>Anciãos</small>
+      <div class="number" id="anciaos">--</div>
+    </div>
+  </div>
+
+  <h2>⚔️ Relatório e alertas</h2>
+  <div id="alerts">Carregando relatório...</div>
+
+  <h2>🏆 Membros do clã</h2>
+  <input id="pesquisa" type="search"
+    placeholder="Pesquisar jogador ou tag..."
+    oninput="filtrar()">
+
+  <div id="lista"></div>
+
+  <p style="margin-top:20px">
+    <button onclick="carregar()">ATUALIZAR PAINEL</button>
+  </p>
+</main>
+
+<footer>
+  BOT EVEREST™ • CLASH OF CLANS<br>
+  Painel de monitoramento do clã
+</footer>
+
+<script>
+const BASE = "https://raw.githubusercontent.com/allansn/bot-everest/main/";
+
+let membros = {};
+
+async function carregar(){
+  const status = document.getElementById("status");
+
+  try{
+    const resposta = await fetch(
+      BASE + "membros.json?tempo=" + Date.now()
+    );
+
+    if(!resposta.ok) throw new Error("Histórico não encontrado");
+
+    membros = await resposta.json();
+
+    const jogadores = Object.values(membros);
+
+    document.getElementById("total").textContent = jogadores.length;
+    document.getElementById("lider").textContent =
+      jogadores.filter(m => m.cargo === "leader").length;
+    document.getElementById("coleaders").textContent =
+      jogadores.filter(m => m.cargo === "coLeader").length;
+    document.getElementById("anciaos").textContent =
+      jogadores.filter(m => m.cargo === "admin").length;
+
+    mostrarMembros();
+
+    const r = await fetch(
+      BASE + "alertas_whatsapp.txt?tempo=" + Date.now()
+    );
+
+    document.getElementById("alerts").textContent =
+      r.ok ? await r.text() : "Relatório ainda não disponível.";
+
+    status.textContent =
+      "● Conectado • Atualizado em " +
+      new Date().toLocaleString("pt-BR");
+
+  }catch(erro){
+    status.textContent =
+      "Não foi possível carregar os dados. Confira se os arquivos existem no GitHub.";
+  }
+}
+
+function mostrarMembros(){
+  const lista = document.getElementById("lista");
+
+  lista.innerHTML = Object.entries(membros)
+    .sort((a,b) => a[1].nome.localeCompare(b[1].nome))
+    .map(([tag,m]) => `
+      <div class="member">
+        <div>
+          <strong>${escapar(m.nome)}</strong><br>
+          <span class="tag">${escapar(tag)}</span>
+        </div>
+        <span class="role">${escapar(m.cargo)}</span>
+      </div>
+    `).join("");
+}
+
+function filtrar(){
+  const termo = document.getElementById("pesquisa").value.toLowerCase();
+
+  const filtrados = Object.fromEntries(
+    Object.entries(membros).filter(([tag,m]) =>
+      m.nome.toLowerCase().includes(termo) ||
+      tag.toLowerCase().includes(termo)
+    )
+  );
+
+  const original = membros;
+  membros = filtrados;
+  mostrarMembros();
+  membros = original;
+}
+
+function escapar(valor){
+  return String(valor ?? "").replace(/[&<>"']/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",
+    '"':"&quot;","'":"&#39;"
+  })[c]);
+}
+
+carregar();
+setInterval(carregar, 5 * 60 * 1000);
+</script>
+</body>
+</html>
