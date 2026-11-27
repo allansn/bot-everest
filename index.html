@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -62,17 +63,24 @@ input{
 .member strong{color:#fff}
 .tag{color:#aaa;font-size:12px}
 .role{color:#e5c45e;font-size:12px}
-#alerts{
+#alerts,#ranking{
   background:#171717;
   border:1px solid #55451f;
   border-radius:10px;
   padding:16px;
-  white-space:pre-wrap;
   line-height:1.6;
   color:#ddd;
-  font-size:13px;
   overflow-wrap:anywhere;
 }
+.rank-item{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  padding:12px 0;
+  border-bottom:1px solid #333;
+}
+.rank-position{color:#e5c45e;font-weight:bold}
+.rank-trophies{color:#e5c45e;font-weight:bold}
 button{
   background:#c9a646;
   color:#111;
@@ -91,6 +99,7 @@ footer{
 </head>
 
 <body>
+
 <header>
   <div class="escudo">⚔️</div>
   <h1>EVEREST™</h1>
@@ -98,21 +107,27 @@ footer{
 </header>
 
 <main>
-  <div class="status" id="status">Conectando ao BOT EVEREST™...</div>
+
+  <div class="status" id="status">
+    Conectando ao BOT EVEREST™...
+  </div>
 
   <div class="cards">
     <div class="card">
       <small>Total de membros</small>
       <div class="number" id="total">--</div>
     </div>
+
     <div class="card">
-      <small>Líder</small>
+      <small>Líderes</small>
       <div class="number" id="lider">--</div>
     </div>
+
     <div class="card">
       <small>Co-líderes</small>
       <div class="number" id="coleaders">--</div>
     </div>
+
     <div class="card">
       <small>Anciãos</small>
       <div class="number" id="anciaos">--</div>
@@ -122,16 +137,24 @@ footer{
   <h2>⚔️ Relatório e alertas</h2>
   <div id="alerts">Carregando relatório...</div>
 
-  <h2>🏆 Membros do clã</h2>
-  <input id="pesquisa" type="search"
+  <h2>🏆 RANKING EVEREST™</h2>
+  <div id="ranking">Carregando ranking...</div>
+
+  <h2>👑 Membros do clã</h2>
+
+  <input
+    id="pesquisa"
+    type="search"
     placeholder="Pesquisar jogador ou tag..."
-    oninput="filtrar()">
+    oninput="filtrar()"
+  >
 
   <div id="lista"></div>
 
   <p style="margin-top:20px">
     <button onclick="carregar()">ATUALIZAR PAINEL</button>
   </p>
+
 </main>
 
 <footer>
@@ -140,33 +163,44 @@ footer{
 </footer>
 
 <script>
-const BASE = "https://raw.githubusercontent.com/allansn/bot-everest/main/";
+
+const BASE =
+"https://raw.githubusercontent.com/allansn/bot-everest/main/";
 
 let membros = {};
 
 async function carregar(){
+
   const status = document.getElementById("status");
 
   try{
+
     const resposta = await fetch(
       BASE + "membros.json?tempo=" + Date.now()
     );
 
-    if(!resposta.ok) throw new Error("Histórico não encontrado");
+    if(!resposta.ok){
+      throw new Error("Histórico não encontrado");
+    }
 
     membros = await resposta.json();
 
     const jogadores = Object.values(membros);
 
-    document.getElementById("total").textContent = jogadores.length;
+    document.getElementById("total").textContent =
+      jogadores.length;
+
     document.getElementById("lider").textContent =
       jogadores.filter(m => m.cargo === "leader").length;
+
     document.getElementById("coleaders").textContent =
       jogadores.filter(m => m.cargo === "coLeader").length;
+
     document.getElementById("anciaos").textContent =
       jogadores.filter(m => m.cargo === "admin").length;
 
     mostrarMembros();
+    mostrarRanking();
 
     const r = await fetch(
       BASE + "alertas_whatsapp.txt?tempo=" + Date.now()
@@ -180,12 +214,15 @@ async function carregar(){
       new Date().toLocaleString("pt-BR");
 
   }catch(erro){
+
     status.textContent =
-      "Não foi possível carregar os dados. Confira se os arquivos existem no GitHub.";
+      "Não foi possível carregar os dados. Verifique o GitHub.";
+
   }
 }
 
 function mostrarMembros(){
+
   const lista = document.getElementById("lista");
 
   lista.innerHTML = Object.entries(membros)
@@ -199,10 +236,38 @@ function mostrarMembros(){
         <span class="role">${escapar(m.cargo)}</span>
       </div>
     `).join("");
+
+}
+
+function mostrarRanking(){
+
+  const ranking = document.getElementById("ranking");
+
+  const jogadores = Object.entries(membros)
+    .sort((a,b) =>
+      (Number(b[1].trofeus) || 0) -
+      (Number(a[1].trofeus) || 0)
+    );
+
+  ranking.innerHTML = jogadores.map(([tag,m],index) => `
+    <div class="rank-item">
+      <div>
+        <span class="rank-position">#${index + 1}</span>
+        <strong>${escapar(m.nome)}</strong><br>
+        <span class="tag">${escapar(tag)}</span>
+      </div>
+      <span class="rank-trophies">
+        🏆 ${Number(m.trofeus) || 0}
+      </span>
+    </div>
+  `).join("");
+
 }
 
 function filtrar(){
-  const termo = document.getElementById("pesquisa").value.toLowerCase();
+
+  const termo = document.getElementById("pesquisa")
+    .value.toLowerCase();
 
   const filtrados = Object.fromEntries(
     Object.entries(membros).filter(([tag,m]) =>
@@ -215,21 +280,25 @@ function filtrar(){
   membros = filtrados;
   mostrarMembros();
   membros = original;
+
 }
 
 function escapar(valor){
+
   return String(valor ?? "").replace(/[&<>"']/g, c => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;",
-    '"':"&quot;","'":"&#39;"
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#39;"
   })[c]);
+
 }
 
 carregar();
+
 setInterval(carregar, 5 * 60 * 1000);
+
 </script>
 </body>
-<section style="padding:20px;color:#e5c45e">
-<h2>🏆 RANKING EVEREST™</h2>
-<div id="ranking"></div>
-</section>
 </html>
