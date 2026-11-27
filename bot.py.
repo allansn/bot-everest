@@ -4,7 +4,7 @@ from urllib.parse import quote
 
 TOKEN = os.environ["CLASH_API_TOKEN"]
 CLAN_TAG = "#2JRP8G0U0"
-API_URL = "https://api.clashofclans.com/v1"
+API_URL = API_URL = "https://cocproxy.royaleapi.dev/v1"
 
 def buscar_membros():
     url = f"{API_URL}/clans/{quote(CLAN_TAG, safe='')}/members"
