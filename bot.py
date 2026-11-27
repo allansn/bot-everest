@@ -1,50 +1,90 @@
 
 import os
+import json
 import requests
+from pathlib import Path
 from urllib.parse import quote
 
-# Remove espaços e quebras de linha do token
 TOKEN = "".join(os.environ["CLASH_API_TOKEN"].split())
-
 CLAN_TAG = "#2JRP8G0U0"
 API_URL = "https://cocproxy.royaleapi.dev/v1"
-
-print("BOT EVEREST - Verificação")
-print("Token carregado:", bool(TOKEN))
-print("Tamanho do token:", len(TOKEN))
-print("Contém espaços internos:", any(c.isspace() for c in TOKEN))
-print("Formato JWT correto:", TOKEN.count(".") == 2)
+ARQUIVO = Path("membros.json")
 
 
 def buscar_membros():
-    url = f"{API_URL}/clans/{quote(CLAN_TAG, safe='')}\/members"
-    url = url.replace("\\/", "/")
+    url = f"{API_URL}/clans/{quote(CLAN_TAG, safe='')}/members"
 
     resposta = requests.get(
         url,
-        headers={
-            "Authorization": f"Bearer {TOKEN}"
-        },
+        headers={"Authorization": f"Bearer {TOKEN}"},
         timeout=30
     )
 
-    if resposta.status_code != 200:
-        print("Erro da API:", resposta.status_code)
-        print("Detalhes:", resposta.text)
-        raise SystemExit(1)
+    resposta.raise_for_status()
 
     membros = resposta.json().get("items", [])
 
-    print(f"EVEREST™ - Total de membros: {len(membros)}")
+    return {
+        membro["tag"]: {
+            "nome": membro.get("name"),
+            "cargo": membro.get("role")
+        }
+        for membro in membros
+    }
 
-    for membro in membros:
-        print(
-            membro.get("name"),
-            membro.get("tag"),
-            membro.get("role")
-        )
+
+def carregar_historico():
+    if ARQUIVO.exists():
+        with open(ARQUIVO, "r", encoding="utf-8") as arquivo:
+            return json.load(arquivo)
+    return None
+
+
+def salvar_historico(membros):
+    with open(ARQUIVO, "w", encoding="utf-8") as arquivo:
+        json.dump(membros, arquivo, ensure_ascii=False, indent=2)
+
+
+def main():
+    atuais = buscar_membros()
+    anteriores = carregar_historico()
+
+    print("===== BOT EVEREST™ =====")
+    print("Total de membros:", len(atuais))
+
+    if anteriores is None:
+        print("Primeira consulta: histórico inicial criado.")
+        salvar_historico(atuais)
+        return
+
+    novos = atuais.keys() - anteriores.keys()
+    saidas = anteriores.keys() - atuais.keys()
+
+    for tag in novos:
+        print("NOVO MEMBRO:", atuais[tag]["nome"], tag)
+
+    for tag in saidas:
+        print("SAIU DO CLÃ:", anteriores[tag]["nome"], tag)
+
+    for tag in atuais.keys() & anteriores.keys():
+        cargo_antigo = anteriores[tag]["cargo"]
+        cargo_novo = atuais[tag]["cargo"]
+
+        if cargo_antigo != cargo_novo:
+            print(
+                "MUDANÇA DE CARGO:",
+                atuais[tag]["nome"],
+                cargo_antigo,
+                "->",
+                cargo_novo
+            )
+
+    if not novos and not saidas:
+        print("Nenhuma entrada ou saída detectada.")
+
+    salvar_historico(atuais)
 
 
 if __name__ == "__main__":
-    buscar_membros()
+    main()
     
