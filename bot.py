@@ -4,11 +4,14 @@ import json
 import requests
 from pathlib import Path
 from urllib.parse import quote
+from datetime import datetime
 
 TOKEN = "".join(os.environ["CLASH_API_TOKEN"].split())
 CLAN_TAG = "#2JRP8G0U0"
 API_URL = "https://cocproxy.royaleapi.dev/v1"
+
 ARQUIVO = Path("membros.json")
+ALERTAS = Path("alertas_whatsapp.txt")
 
 
 def buscar_membros():
@@ -19,7 +22,6 @@ def buscar_membros():
         headers={"Authorization": f"Bearer {TOKEN}"},
         timeout=30
     )
-
     resposta.raise_for_status()
 
     membros = resposta.json().get("items", [])
@@ -48,43 +50,67 @@ def salvar_historico(membros):
 def main():
     atuais = buscar_membros()
     anteriores = carregar_historico()
+    mensagens = []
 
     print("===== BOT EVEREST™ =====")
     print("Total de membros:", len(atuais))
 
     if anteriores is None:
-        print("Primeira consulta: histórico inicial criado.")
+        print("Histórico inicial criado.")
         salvar_historico(atuais)
+        ALERTAS.write_text(
+            "BOT EVEREST™\nPrimeira consulta realizada. "
+            "Histórico inicial criado.",
+            encoding="utf-8"
+        )
         return
 
     novos = atuais.keys() - anteriores.keys()
     saidas = anteriores.keys() - atuais.keys()
 
     for tag in novos:
-        print("NOVO MEMBRO:", atuais[tag]["nome"], tag)
+        nome = atuais[tag]["nome"]
+        mensagens.append(
+            f"🟢 NOVO MEMBRO NO EVEREST™\n"
+            f"Jogador: {nome}\nTag: {tag}"
+        )
 
     for tag in saidas:
-        print("SAIU DO CLÃ:", anteriores[tag]["nome"], tag)
+        nome = anteriores[tag]["nome"]
+        mensagens.append(
+            f"🔴 MEMBRO SAIU DO EVEREST™\n"
+            f"Jogador: {nome}\nTag: {tag}"
+        )
 
     for tag in atuais.keys() & anteriores.keys():
-        cargo_antigo = anteriores[tag]["cargo"]
-        cargo_novo = atuais[tag]["cargo"]
+        antigo = anteriores[tag]["cargo"]
+        novo = atuais[tag]["cargo"]
 
-        if cargo_antigo != cargo_novo:
-            print(
-                "MUDANÇA DE CARGO:",
-                atuais[tag]["nome"],
-                cargo_antigo,
-                "->",
-                cargo_novo
+        if antigo != novo:
+            mensagens.append(
+                f"⚔️ MUDANÇA DE CARGO - EVEREST™\n"
+                f"Jogador: {atuais[tag]['nome']}\n"
+                f"Cargo anterior: {antigo}\n"
+                f"Novo cargo: {novo}"
             )
 
-    if not novos and not saidas:
-        print("Nenhuma entrada ou saída detectada.")
+    if not mensagens:
+        mensagens.append(
+            "✅ EVEREST™\nNenhuma entrada, saída ou mudança de cargo."
+        )
 
+    relatorio = (
+        "📢 RELATÓRIO DO EVEREST™\n"
+        f"Data: {datetime.now().strftime('%d/%m/%Y %H:%M')}\n"
+        f"Total de membros: {len(atuais)}\n\n"
+        + "\n\n".join(mensagens)
+    )
+
+    print("\n" + relatorio)
+
+    ALERTAS.write_text(relatorio, encoding="utf-8")
     salvar_historico(atuais)
 
 
 if __name__ == "__main__":
     main()
-    
