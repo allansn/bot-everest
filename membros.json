@@ -22,7 +22,7 @@
   "#LJ0PC2C0G": {
     "nome": "Gui",
     "cargo": "admin",
-    "trofeus": 295
+    "trofeus": 357
   },
   "#8QV2VGU9": {
     "nome": "Daniel",
@@ -57,12 +57,17 @@
   "#QLGRU8QVC": {
     "nome": "guigo",
     "cargo": "member",
-    "trofeus": 25
+    "trofeus": 94
   },
   "#QPL9PJRV8": {
     "nome": "CACHORRO LOUCO",
     "cargo": "member",
     "trofeus": 522
+  },
+  "#PC99GUYLR": {
+    "nome": "Luck",
+    "cargo": "member",
+    "trofeus": 342
   },
   "#L9RYR8YYP": {
     "nome": "LUFFY7",
@@ -102,7 +107,7 @@
   "#QU8Y0Q0P9": {
     "nome": "YumaX",
     "cargo": "member",
-    "trofeus": 76
+    "trofeus": 127
   },
   "#GR0J9QRV0": {
     "nome": "POSEIDON011",
@@ -132,12 +137,22 @@
   "#LV90Y9989": {
     "nome": "PEDROFZ",
     "cargo": "member",
-    "trofeus": 223
+    "trofeus": 240
+  },
+  "#QQVP8RJUJ": {
+    "nome": "Victhorsm",
+    "cargo": "member",
+    "trofeus": 236
   },
   "#R92PJLCCQ": {
     "nome": "amanda",
     "cargo": "coLeader",
     "trofeus": 80
+  },
+  "#R0CU9U8JJ": {
+    "nome": "gbl",
+    "cargo": "member",
+    "trofeus": 77
   },
   "#GQRRPCJJR": {
     "nome": "__D__",
@@ -154,8 +169,18 @@
     "cargo": "member",
     "trofeus": 0
   },
+  "#20G0YCJL8": {
+    "nome": "phsandes",
+    "cargo": "member",
+    "trofeus": 0
+  },
   "#9CGCGYUU": {
     "nome": "Bianca",
+    "cargo": "member",
+    "trofeus": 0
+  },
+  "#RPRRLVGY0": {
+    "nome": "santos.",
     "cargo": "member",
     "trofeus": 0
   },
@@ -169,15 +194,15 @@
     "cargo": "member",
     "trofeus": 40
   },
+  "#Q0CJQLJPJ": {
+    "nome": "samir",
+    "cargo": "member",
+    "trofeus": 293
+  },
   "#QRVYPYRLG": {
     "nome": "vbbshe",
     "cargo": "member",
     "trofeus": 152
-  },
-  "#Q0CJQLJPJ": {
-    "nome": "samir",
-    "cargo": "member",
-    "trofeus": 53
   },
   "#YPGR2YRCG": {
     "nome": "DUDA",
@@ -189,6 +214,16 @@
     "cargo": "member",
     "trofeus": 0
   },
+  "#GC0R0YU0R": {
+    "nome": "xrambooo",
+    "cargo": "member",
+    "trofeus": 0
+  },
+  "#28UJVCUJR": {
+    "nome": "Lucas",
+    "cargo": "member",
+    "trofeus": 0
+  },
   "#QU0LCRCQC": {
     "nome": "alex:)",
     "cargo": "member",
@@ -196,6 +231,11 @@
   },
   "#Q2URR98CU": {
     "nome": "XANDÃO 026",
+    "cargo": "member",
+    "trofeus": 0
+  },
+  "#9QQYJCRPQ": {
+    "nome": "Thiago",
     "cargo": "member",
     "trofeus": 0
   },
